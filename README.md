@@ -52,3 +52,88 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## DevOps and deployment
+
+### Local Docker
+
+Build the production container image:
+
+```sh
+docker build -t vault-health .
+```
+
+Run it locally:
+
+```sh
+docker run -d -p 8080:80 --name vault-health vault-health
+```
+
+### Docker Compose
+
+This project also supports a simple local compose deployment using the same production Docker image:
+
+```sh
+docker compose up --build -d
+```
+
+The Compose service maps port `8080` to the Nginx container port `80` and keeps the deployment focused on the frontend image only. It does not create a separate PostgreSQL service because Supabase is used for persistence and auth.
+
+### Jenkins CI/CD
+
+The repository is intended to run through a standard Jenkins pipeline:
+
+```text
+GitHub
+  ↓
+Jenkins
+  ↓
+Checkout
+  ↓
+Install
+  ↓
+Test
+  ↓
+Build
+  ↓
+Docker Build
+  ↓
+Deploy
+  ↓
+Health Verification
+```
+
+The Jenkins agent needs:
+
+- Node.js
+- npm
+- Docker
+- Git
+- curl
+
+The agent must also have permission to run Docker commands for image build and container lifecycle management.
+
+The pipeline should use Jenkins environment variables or Jenkins credentials for the public browser config values required by Vite:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
+
+These are public frontend values only. They should be configured in Jenkins and not committed to source control or placed in the repository. Never use a Supabase service-role key in the frontend or in the Jenkins pipeline.
+
+### GitHub webhook setup
+
+A Jenkins job can be triggered by GitHub in either of these ways:
+
+- GitHub webhook trigger on push or pull request events
+- SCM polling from the GitHub repository
+
+For a straightforward CI/CD workflow, GitHub webhook trigger is preferred because it responds immediately to code changes and keeps deployment automation more timely.
+
+The Jenkins project should be configured to check out the repository, run `npm ci`, `npm test`, `npm run build`, build the Docker image, deploy it, and confirm the app responds over HTTP on port `8080`.
+
+## Security notes
+
+- `.env` remains ignored and must not be committed.
+- Supabase service-role keys are never used in the frontend or Docker build.
+- Secrets are managed outside the repository, typically through Jenkins credentials or a trusted deployment environment.
+- The Docker build does not copy `.env` into the image.
