@@ -1,23 +1,18 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import App from './App';
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import Landing from './pages/Landing';
 
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: () => ({
-    auth: {
-      getSession: vi.fn().mockResolvedValue({ data: { session: null } }),
-      onAuthStateChange: vi.fn().mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } }),
-    },
-  }),
-}));
+describe('Vault Health landing page', () => {
+  it('renders the real Vault Health hero content', () => {
+    render(
+      <MemoryRouter>
+        <Landing />
+      </MemoryRouter>
+    );
 
-describe('Vault Health app shell', () => {
-  it('renders the landing page content', async () => {
-    render(<App />);
-
-    await waitFor(() => {
-      expect(screen.getByText(/All your medical records/i)).toBeInTheDocument();
-    });
-
+    expect(screen.getByRole('heading', { name: /all your medical records\./i })).toBeInTheDocument();
+    expect(screen.getByText(/One secure place\./i)).toBeInTheDocument();
     expect(screen.getAllByText(/Vault Health/i).length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: /Get Started Free/i })).toBeInTheDocument();
   });
 });
