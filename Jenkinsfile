@@ -72,9 +72,9 @@ pipeline {
       steps {
         sh '''
           sleep 10
-          curl -fsS http://localhost:8080/ > /tmp/vault-health-root.html
-          curl -fsS http://localhost:8080/login > /tmp/vault-health-login.html
-          curl -fsS http://localhost:8080/app > /tmp/vault-health-app.html
+          curl -fsS http://host.docker.internal:8080/ > /tmp/vault-health-root.html
+          curl -fsS http://host.docker.internal:8080/login > /tmp/vault-health-login.html
+          curl -fsS http://host.docker.internal:8080/app > /tmp/vault-health-app.html
         '''
       }
     }
