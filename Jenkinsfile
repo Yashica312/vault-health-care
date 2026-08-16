@@ -15,12 +15,13 @@ pipeline {
 
     stage('Install Dependencies') {
       steps {
-        sh 'npm ci'
+        sh 'unset NODE_ENV; npm ci --include=dev'
       }
     }
 
     stage('Test') {
       steps {
+        sh 'npx vitest --version'
         sh 'npm test'
       }
     }
