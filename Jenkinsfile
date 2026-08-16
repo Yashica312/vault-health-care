@@ -4,6 +4,8 @@ pipeline {
   environment {
     NODE_ENV = 'production'
     DOCKER_IMAGE = 'vault-health'
+    VITE_SUPABASE_URL = "${env.VITE_SUPABASE_URL ?: ''}"
+    VITE_SUPABASE_PUBLISHABLE_KEY = "${env.VITE_SUPABASE_PUBLISHABLE_KEY ?: ''}"
   }
 
   stages {
@@ -40,8 +42,8 @@ pipeline {
         ]) {
           sh '''
             docker build \
-              --build-arg VITE_SUPABASE_URL="${VITE_SUPABASE_URL}" \
-              --build-arg VITE_SUPABASE_PUBLISHABLE_KEY="${VITE_SUPABASE_PUBLISHABLE_KEY}" \
+              --build-arg VITE_SUPABASE_URL="$VITE_SUPABASE_URL" \
+              --build-arg VITE_SUPABASE_PUBLISHABLE_KEY="$VITE_SUPABASE_PUBLISHABLE_KEY" \
               -t vault-health:${BUILD_NUMBER} .
             docker tag vault-health:${BUILD_NUMBER} vault-health:latest
           '''
